@@ -1,6 +1,3 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_snake_case)]
-
 extern crate libc;
 
 mod lisp;
