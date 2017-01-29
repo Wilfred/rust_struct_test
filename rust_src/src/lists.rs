@@ -43,42 +43,15 @@ fn XCONS(a: LispObject) -> *mut LispCons {
     unsafe { mem::transmute(XUNTAG(a, LispType::Lisp_Cons)) }
 }
 
-/// Set the car of a cons cell.
-fn XSETCAR(c: LispObject, n: LispObject) {
-    let cons_cell = XCONS(c);
-    unsafe {
-        (*cons_cell).car = n;
-    }
-}
-
 /// Is `object` nil?
 pub fn NILP(object: LispObject) -> bool {
     object == Qnil
-}
-
-unsafe fn XCAR(object: LispObject) -> LispObject {
-    (*XCONS(object)).car
 }
 
 unsafe fn XCDR(object: LispObject) -> LispObject {
     (*XCONS(object)).cdr
 }
 
-/// Take the car/cdr of a cons cell, or signal an error if it's a
-/// different type.
-///
-/// # Porting Notes
-///
-/// This is equivalent to `CAR`/`CDR` in C code.
-fn car(object: LispObject) -> LispObject {
-    if CONSP(object) {
-        unsafe { XCAR(object) }
-    } else if NILP(object) {
-        Qnil
-    } else {
-        unsafe { wrong_type_argument(Qnil, object) }
-    }
-}
 fn cdr(object: LispObject) -> LispObject {
     if CONSP(object) {
         unsafe { XCDR(object) }
@@ -87,12 +60,6 @@ fn cdr(object: LispObject) -> LispObject {
     } else {
         unsafe { wrong_type_argument(Qnil, object) }
     }
-}
-
-#[no_mangle]
-pub extern "C" fn Fcar(list: LispObject) -> LispObject {
-    println!("Fcar: {:?}", list);
-    car(list)
 }
 
 #[no_mangle]
