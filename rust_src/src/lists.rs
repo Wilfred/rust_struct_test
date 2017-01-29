@@ -103,41 +103,8 @@ pub extern "C" fn Fcar(list: LispObject) -> LispObject {
     car(list)
 }
 
-defun!("car",
-       Fcar,
-       Scar,
-       1,
-       1,
-       ptr::null(),
-       "Return the car of LIST.  If arg is nil, return nil.
-Error if arg is not nil and not a \
-        cons cell.  See also `car-safe'.
-
-See Info node `(elisp)Cons Cells' for a discussion of \
-        related basic
-Lisp concepts such as car, cdr, cons cell and list.
-
-(fn LIST)");
-
 #[no_mangle]
 pub extern "C" fn Fcdr(list: LispObject) -> LispObject {
     println!("Fcdr: {:?}", list);
     cdr(list)
 }
-
-defun!("cdr",
-       Fcdr,
-       Scdr,
-       1,
-       1,
-       ptr::null(),
-       "Return the cdr of LIST.  If arg is nil, return nil.
-Error if arg is not nil and not a \
-        cons cell.  See also `cdr-safe'.
-
-See Info node `(elisp)Cons Cells' for a discussion of \
-        related basic
-Lisp concepts such as cdr, car, cons cell and list.
-
-(fn LIST)");
-
