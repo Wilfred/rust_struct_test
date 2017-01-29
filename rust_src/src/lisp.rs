@@ -1,8 +1,5 @@
 #![allow(non_upper_case_globals)]
 
-/// This module contains Rust definitions whose C equivalents live in
-/// lisp.h.
-
 extern crate libc;
 
 use std::os::raw::c_char;
@@ -13,8 +10,6 @@ pub type EmacsInt = libc::c_int;
 pub type EmacsUint = libc::c_uint;
 pub const EMACS_INT_MAX: EmacsInt = 0x7FFFFFFF_i32;
 pub const EMACS_INT_SIZE: EmacsInt = 4;
-pub type EmacsDouble = f64;
-pub const EMACS_FLOAT_SIZE: EmacsInt = 8;
 pub const GCTYPEBITS: EmacsInt = 3;
 pub const USE_LSB_TAG: bool = true;
 
@@ -51,30 +46,13 @@ const INTMASK: EmacsInt = (EMACS_INT_MAX >> (INTTYPEBITS - 1));
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug)]
 pub enum LispType {
-    // Symbol.  XSYMBOL (object) points to a struct Lisp_Symbol.
     Lisp_Symbol = 0,
-
-    // Miscellaneous.  XMISC (object) points to a union Lisp_Misc,
-    // whose first member indicates the subtype.
     Lisp_Misc = 1,
-
-    // Integer.  XINT (obj) is the integer value.
     Lisp_Int0 = 2,
     Lisp_Int1 = 3 + (USE_LSB_TAG as usize as u8) * 3, // 3 | 6
-
-    // String.  XSTRING (object) points to a struct Lisp_String.
-    // The length of the string, and its contents, are stored therein.
     Lisp_String = 4,
-
-    // Vector of Lisp objects, or something resembling it.
-    // XVECTOR (object) points to a struct Lisp_Vector, which contains
-    // the size and contents.  The size field also contains the type
-    // information, if it's not a real vector object.
     Lisp_Vectorlike = 5,
-
-    // Cons.  XCONS (object) points to a struct Lisp_Cons.
     Lisp_Cons = 6 - (USE_LSB_TAG as usize as u8) * 3, // 6 | 3
-
     Lisp_Float = 7,
 }
 
