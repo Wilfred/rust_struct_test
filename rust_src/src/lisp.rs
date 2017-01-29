@@ -22,18 +22,9 @@ pub const USE_LSB_TAG: bool = true;
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct LispObject(EmacsInt);
 
-pub fn wrong_type_argument(predicate: LispObject, value: LispObject) -> LispObject {
-  panic!("wrong type argument");
-}
-
 pub const Qnil: LispObject = LispObject(0);
 
 impl LispObject {
-    #[inline]
-    pub unsafe fn from_raw(i: EmacsInt) -> LispObject {
-        LispObject(i)
-    }
-
     #[inline]
     pub fn to_raw(self) -> EmacsInt {
         self.0
