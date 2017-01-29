@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-int Fcdr(int);
+int fcdr(int);
 
 int main() {
-  printf("call Fcdr with 0\n");
-  Fcdr(0);
+  printf("call fcdr with 0\n");
+  fcdr(0);
   return 0;
 }
