@@ -1,8 +1,11 @@
 extern crate libc;
 
-mod lisp;
+pub type EmacsInt = libc::c_int;
 
-use lisp::{LispObject};
+#[repr(C)]
+#[derive(PartialEq, Eq, Clone, Copy)]
+pub struct LispObject(pub EmacsInt);
+
 
 #[no_mangle]
 pub extern "C" fn Fcdr(list: LispObject) -> LispObject {
