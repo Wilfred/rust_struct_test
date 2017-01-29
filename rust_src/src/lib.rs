@@ -1,6 +1,12 @@
 extern crate libc;
 
 mod lisp;
-mod lists;
 
-pub use lists::Fcdr;
+use lisp::{LispObject};
+
+#[no_mangle]
+pub extern "C" fn Fcdr(list: LispObject) -> LispObject {
+    println!("Fcdr: {:?}", list);
+    list
+}
+
