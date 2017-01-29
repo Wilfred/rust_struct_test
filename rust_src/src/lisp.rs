@@ -15,7 +15,7 @@ pub const USE_LSB_TAG: bool = true;
 
 #[repr(C)]
 #[derive(PartialEq, Eq, Clone, Copy)]
-pub struct LispObject(EmacsInt);
+pub struct LispObject(pub EmacsInt);
 
 pub const Qnil: LispObject = LispObject(0);
 
