@@ -465,14 +465,6 @@ pub struct LispSubr {
     pub doc: *const c_char,
 }
 
-// In order to use `lazy_static!` with LispSubr, it must be Sync. Raw
-// pointers are not Sync, but it isn't a problem to define Sync if we
-// never mutate LispSubr values. If we do, we will need to create
-// these objects at runtime, perhaps using forget().
-//
-// Based on http://stackoverflow.com/a/28116557/509706
-unsafe impl Sync for LispSubr {}
-
 /// Used to denote functions that have no limit on the maximum number
 /// of arguments.
 pub const MANY: i16 = -2;
@@ -532,62 +524,12 @@ mod deprecated {
     use ::libc;
     use ::std;
 
-    /// Convert a LispObject to an EmacsInt.
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn XLI(o: LispObject) -> EmacsInt {
-        o.to_raw()
-    }
-
-    /// Convert an EmacsInt to an LispObject.
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn XIL(i: EmacsInt) -> LispObject {
-        // Note that CHECK_LISP_OBJECT_TYPE is 0 (false) in our build.
-        unsafe { LispObject::from_raw(i) }
-    }
-
-    #[test]
-    fn test_xil_xli_inverse() {
-        assert!(XLI(XIL(0)) == 0);
-    }
-
     /// Return the type of a LispObject.
     #[allow(non_snake_case)]
     pub fn XTYPE(a: LispObject) -> LispType {
         a.get_type()
     }
 
-    #[test]
-    fn test_xtype() {
-        assert!(XTYPE(Qnil) == LispType::Lisp_Symbol);
-    }
-
-    /// Is this LispObject a misc type?
-    ///
-    /// A misc type has its type bits set to 'misc', and uses additional
-    /// bits to specify what exact type it represents.
-    #[allow(non_snake_case)]
-    pub fn MISCP(a: LispObject) -> bool {
-        a.is_misc()
-    }
-
-    #[test]
-    fn test_miscp() {
-        assert!(!MISCP(Qnil));
-    }
-
-    #[allow(non_snake_case)]
-    pub fn XMISC(a: LispObject) -> LispMiscRef {
-        unsafe { a.to_misc_unchecked() }
-    }
-
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn XMISCANY(a: LispObject) -> *const LispMiscAny {
-        debug_assert!(MISCP(a));
-        XMISC(a).0
-    }
     /// Convert a tagged pointer to a normal C pointer.
     ///
     /// See the docstring for `LispType` for more information on tagging.
