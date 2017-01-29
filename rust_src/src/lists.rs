@@ -4,7 +4,7 @@ use std::os::raw::c_char;
 use std::ptr;
 use std::mem;
 
-use lisp::{LispObject, LispSubr, LispType, Qnil, XTYPE, XUNTAG, wrong_type_argument};
+use lisp::{LispObject, LispType, Qnil, XTYPE, XUNTAG, wrong_type_argument};
 
 pub fn CONSP(x: LispObject) -> bool {
     XTYPE(x) == LispType::Lisp_Cons
