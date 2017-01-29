@@ -1,5 +1,4 @@
 #![allow(non_upper_case_globals)]
-#![macro_use]
 
 /// This module contains Rust definitions whose C equivalents live in
 /// lisp.h.
@@ -553,75 +552,6 @@ mod deprecated {
         assert!(XLI(XIL(0)) == 0);
     }
 
-    /// Convert an integer to an elisp object representing that number.
-    ///
-    /// # Porting from C
-    ///
-    /// This function is a direct replacement for the C function
-    /// `make_number`.
-    ///
-    /// The C macro `XSETINT` should also be replaced with this when
-    /// porting. For example, `XSETINT(x, y)` should be written as `x =
-    /// make_number(y)`.
-    pub fn make_number(n: EmacsInt) -> LispObject {
-        unsafe { LispObject::from_fixnum_unchecked(n) }
-    }
-
-    /// Extract the integer value from an elisp object representing an
-    /// integer.
-    #[allow(non_snake_case)]
-    pub fn XINT(a: LispObject) -> EmacsInt {
-        a.to_fixnum().unwrap()
-    }
-
-    #[test]
-    fn test_xint() {
-        let boxed_5 = make_number(5);
-        assert!(XINT(boxed_5) == 5);
-    }
-
-
-    /// Is this LispObject an integer?
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn INTEGERP(a: LispObject) -> bool {
-        a.is_integer()
-    }
-
-    #[test]
-    fn test_integerp() {
-        assert!(!INTEGERP(Qnil));
-        assert!(INTEGERP(make_number(1)));
-        assert!(INTEGERP(make_natnum(1)));
-    }
-
-    /// Is this LispObject a symbol?
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn SYMBOLP(a: LispObject) -> bool {
-        a.is_symbol()
-    }
-
-    #[test]
-    fn test_symbolp() {
-        assert!(SYMBOLP(Qnil));
-    }
-
-
-    /// Convert a positive integer into its LispObject representation.
-    ///
-    /// This is also the function to use when translating `XSETFASTINT`
-    /// from Emacs C.
-    // TODO: the C claims that make_natnum is faster, but it does the same
-    // thing as make_number when USE_LSB_TAG is 1, which it is for us. We
-    // should remove this in favour of make_number.
-    //
-    // TODO: it would be clearer if this function took a u64 or libc::c_int.
-    pub fn make_natnum(n: EmacsInt) -> LispObject {
-        debug_assert!(0 <= n && n <= MOST_POSITIVE_FIXNUM);
-        make_number(n)
-    }
-
     /// Return the type of a LispObject.
     #[allow(non_snake_case)]
     pub fn XTYPE(a: LispObject) -> LispType {
@@ -658,71 +588,6 @@ mod deprecated {
         debug_assert!(MISCP(a));
         XMISC(a).0
     }
-
-    // TODO: we should do some sanity checking, because we're currently
-    // exposing a safe API that dereferences raw pointers.
-    #[allow(non_snake_case)]
-    pub fn XMISCTYPE(a: LispObject) -> LispMiscType {
-        XMISC(a).ty
-    }
-
-    /// Is this LispObject a float?
-    #[allow(non_snake_case)]
-    pub fn FLOATP(a: LispObject) -> bool {
-        a.is_float()
-    }
-
-    #[test]
-    fn test_floatp() {
-        assert!(!FLOATP(Qnil));
-    }
-
-    #[allow(non_snake_case)]
-    pub fn NATNUMP(a: LispObject) -> bool {
-        INTEGERP(a) && 0 <= XINT(a)
-    }
-
-    #[test]
-    fn test_natnump() {
-        assert!(!NATNUMP(Qnil));
-    }
-
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn XFLOAT(a: LispObject) -> LispFloatRef {
-        debug_assert!(FLOATP(a));
-        unsafe { a.to_float_unchecked() }
-    }
-
-    #[allow(non_snake_case)]
-    #[allow(dead_code)]
-    pub fn XFLOAT_DATA(f: LispObject) -> f64 {
-        unsafe { f.get_float_data_unchecked() }
-    }
-
-    /// Is this LispObject a number?
-    #[allow(non_snake_case)]
-    pub fn NUMBERP(x: LispObject) -> bool {
-        x.is_number()
-    }
-
-    /// Is this LispObject a string?
-    #[allow(non_snake_case)]
-    pub fn STRINGP(x: LispObject) -> bool {
-        x.is_string()
-    }
-
-    #[test]
-    fn test_numberp() {
-        assert!(!NUMBERP(Qnil));
-        assert!(NUMBERP(make_natnum(1)));
-    }
-
-    pub fn XSTRING(a: LispObject) -> *mut LispString {
-        debug_assert!(STRINGP(a));
-        unsafe { std::mem::transmute(XUNTAG(a, LispType::Lisp_String)) }
-    }
-
     /// Convert a tagged pointer to a normal C pointer.
     ///
     /// See the docstring for `LispType` for more information on tagging.
@@ -731,30 +596,6 @@ mod deprecated {
         a.get_untaggedptr()
     }
 
-    // Implementation of the XFASTINT depends on the USE_LSB_TAG
-    // in Emacs C. But we selected this implementation as in our
-    // build that value is 1.
-    // A must be nonnegative.
-    #[allow(dead_code)]
-    #[allow(non_snake_case)]
-    pub fn XFASTINT(a: LispObject) -> EmacsInt {
-        let n: EmacsInt = XINT(a);
-        debug_assert!(0 <= n);
-        n
-    }
 }
 
 pub use self::deprecated::*;
-
-/// Raise an error if `x` is the wrong type. `ok` should be a Rust/C
-/// expression that evaluates if the type is correct. `predicate` is
-/// the elisp-level equivalent predicate that failed.
-#[allow(non_snake_case)]
-pub fn CHECK_TYPE(ok: bool, predicate: LispObject, x: LispObject) {
-    if !ok {
-        unsafe {
-            wrong_type_argument(predicate, x);
-        }
-    }
-}
-

@@ -4,7 +4,7 @@ use std::os::raw::c_char;
 use std::ptr;
 use std::mem;
 
-use lisp::{CHECK_TYPE, LispObject, LispSubr, LispType, Qnil, XTYPE, XUNTAG, wrong_type_argument};
+use lisp::{LispObject, LispSubr, LispType, Qnil, XTYPE, XUNTAG, wrong_type_argument};
 
 pub fn CONSP(x: LispObject) -> bool {
     XTYPE(x) == LispType::Lisp_Cons
@@ -48,14 +48,6 @@ fn XSETCAR(c: LispObject, n: LispObject) {
     let cons_cell = XCONS(c);
     unsafe {
         (*cons_cell).car = n;
-    }
-}
-
-/// Set the cdr of a cons cell.
-fn XSETCDR(c: LispObject, n: LispObject) {
-    let cons_cell = XCONS(c);
-    unsafe {
-        (*cons_cell).cdr = n;
     }
 }
 
