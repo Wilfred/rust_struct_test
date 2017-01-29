@@ -9,23 +9,13 @@ use std::os::raw::c_char;
 use std::mem;
 use std::fmt::{Debug, Formatter, Error};
 
-include!(concat!(env!("OUT_DIR"), "/definitions.rs"));
-/// These are an example of the casual case.
-#[cfg(dummy = "impossible")]
-pub type EmacsInt = isize;
-#[cfg(dummy = "impossible")]
-pub type EmacsUint = usize;
-#[cfg(dummy = "impossible")]
+pub type EmacsInt = libc::c_int;
+pub type EmacsUint = libc::c_uint;
+pub const EMACS_INT_MAX: EmacsInt = 0x7FFFFFFF_i32;
+pub const EMACS_INT_SIZE: EmacsInt = 4;
 pub type EmacsDouble = f64;
-#[cfg(dummy = "impossible")]
-pub const EMACS_INT_MAX: EmacsInt = 0x7FFFFFFFFFFFFFFF_i64;
-#[cfg(dummy = "impossible")]
-pub const EMACS_INT_SIZE: EmacsInt = 8;
-#[cfg(dummy = "impossible")]
 pub const EMACS_FLOAT_SIZE: EmacsInt = 8;
-#[cfg(dummy = "impossible")]
 pub const GCTYPEBITS: EmacsInt = 3;
-#[cfg(dummy = "impossible")]
 pub const USE_LSB_TAG: bool = true;
 
 #[repr(C)]

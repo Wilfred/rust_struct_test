@@ -6,14 +6,9 @@ homepage = "https://github.com/Wilfred/remacs/"
 repository = "https://github.com/Wilfred/remacs/"
 license = "GPL-3.0"
 version = "0.1.0"
-build = "build.rs"
 
 [dependencies]
 libc = "0.2.17"
-
-# Only want this local crate as dependency on Mac OS X
-[target.'cfg(target_os = "macos")'.dependencies]
-alloc_unexecmacosx = { version = "0.1.0", path = "alloc_unexecmacosx" }
 
 [build-dependencies]
 libc = "0.2.17"
@@ -28,7 +23,3 @@ panic = "abort"
 
 [profile.release]
 panic = "abort"
-
-[features]
-# Treat warnings as a build error on Travis.
-strict = []
