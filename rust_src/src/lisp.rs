@@ -6,29 +6,8 @@
 extern crate libc;
 
 use std::os::raw::c_char;
-#[cfg(test)]
-use std::cmp::max;
 use std::mem;
-use std::ops::Deref;
 use std::fmt::{Debug, Formatter, Error};
-
-/// Emacs values are represented as tagged pointers. A few bits are
-/// used to represent the type, and the remaining bits are either used
-/// to store the value directly (e.g. integers) or the address of a
-/// more complex data type (e.g. a cons cell).
-///
-/// TODO: example representations
-///
-/// `EmacsInt` represents an integer big enough to hold our tagged
-/// pointer representation.
-///
-/// In Emacs C, this is `EMACS_INT`.
-///
-/// `EmacsUint` represents the unsigned equivalent of `EmacsInt`.
-/// In Emacs C, this is `EMACS_UINT`.
-///
-/// Their definition are determined in a way consistent with Emacs C.
-/// Under casual systems, they're the type isize and usize respectively.
 
 include!(concat!(env!("OUT_DIR"), "/definitions.rs"));
 /// These are an example of the casual case.
@@ -76,9 +55,6 @@ impl LispObject {
 const VALBITS: EmacsInt = EMACS_INT_SIZE * 8 - GCTYPEBITS;
 
 const INTTYPEBITS: EmacsInt = GCTYPEBITS - 1;
-
-#[allow(dead_code)]
-const FIXNUM_BITS: EmacsInt = VALBITS + 1;
 
 const VAL_MAX: EmacsInt = EMACS_INT_MAX >> (GCTYPEBITS - 1);
 
@@ -132,12 +108,8 @@ impl LispObject {
         }) as u8;
         unsafe { mem::transmute(res) }
     }
-
-    #[inline]
-    pub fn get_untaggedptr(self) -> *mut libc::c_void {
-        (self.to_raw() & VALMASK) as libc::intptr_t as *mut libc::c_void
-    }
 }
+
 
 #[allow(dead_code)]
 impl Debug for LispObject {
@@ -183,32 +155,3 @@ impl Debug for LispObject {
         Ok(())
     }
 }
-
-/// # Porting Notes
-///
-/// This module contains some functions that is originally contained in Emacs C code
-/// as macros and global functions, which does not conforms to Rust naming rules well
-/// and lacks unsafe marks. However we'll keep them during the porting process to make
-/// the porting easy, we should be able to remove once the relevant functionality is Rust-only.
-mod deprecated {
-    use super::*;
-    use ::libc;
-    use ::std;
-
-    /// Return the type of a LispObject.
-    #[allow(non_snake_case)]
-    pub fn XTYPE(a: LispObject) -> LispType {
-        a.get_type()
-    }
-
-    /// Convert a tagged pointer to a normal C pointer.
-    ///
-    /// See the docstring for `LispType` for more information on tagging.
-    #[allow(non_snake_case)]
-    pub fn XUNTAG(a: LispObject, _: LispType) -> *const libc::c_void {
-        a.get_untaggedptr()
-    }
-
-}
-
-pub use self::deprecated::*;
